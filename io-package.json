@@ -1,0 +1,88 @@
+{
+    "common": {
+        "name": "linky",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "consommation électrique du compteur Linky",
+        "titleLang": {
+            "en": "consommation électrique du compteur Linky",
+            "de": "consommation électrique du compteur Linky",
+            "ru": "consommation électrique du compteur Linky",
+            "pt": "consommation électrique du compteur Linky",
+            "nl": "consommation électrique du compteur Linky",
+            "fr": "consommation électrique du compteur Linky",
+            "it": "consommation électrique du compteur Linky",
+            "es": "consommation électrique du compteur Linky",
+            "pl": "consommation électrique du compteur Linky",
+            "zh-cn": "consommation électrique du compteur Linky"
+        },
+        "desc": {
+            "en": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
+            "de": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
+            "ru": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
+            "pt": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
+            "nl": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
+            "fr": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
+            "it": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
+            "es": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
+            "pl": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
+            "zh-cn": "Enregistrement de la consommation électrique depuis le site Web d'Enedis"
+        },
+        "authors": [
+            "domo-site <michel.gravier@orange.fr>"
+        ],
+        "keywords": [
+            "énergie",
+            "consommation",
+            "Enedis",
+            "kW",
+            "kWh",
+            "Volts",
+            "Ampères"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "main.js",
+        "icon": "linky.jpg",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/mgrafr/ioBroker.linky/main/admin/linky.jpg",
+        "readme": "https://github.com/mgrafr/ioBroker.linky/blob/main/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "energy",
+        "compact": true,
+        "connectionType": "cloud",
+        "dataSource": "poll",
+        "adminUI": {
+            "config": "materialize"
+        },
+        "dependencies": [
+            {
+                "js-controller": ">=3.3.22"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=5.0.0"
+            }
+        ]
+    },
+    "native": {
+        "token_enedis": "token"
+    },
+    "objects": [],
+    "instanceObjects": []
+}
