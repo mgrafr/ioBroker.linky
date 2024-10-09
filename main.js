@@ -6,8 +6,11 @@
 
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
-const utils = require("@iobroker/adapter-core");
-
+//const utils = require("@iobroker/adapter-core");
+//import { utils } from "@iobroker/adapter-core";
+//import('linky.Session');
+import  * as utils   from '@iobroker/adapter-core';
+import { Session } from "linky";
 // Load your modules here, e.g.:
 // const fs = require("fs");
 
@@ -21,6 +24,7 @@ let adapter;
  * Starts the adapter instance
  * @param {Partial<utils.AdapterOptions>} [options]
  */
+
 function startAdapter(options) {
     // Create the adapter and define its methods
     return adapter = utils.adapter(Object.assign({}, options, {
@@ -92,7 +96,18 @@ async function main() {
     // The adapters config (in the instance object everything under the attribute "native") is accessible via
     // adapter.config:
     adapter.log.info("config token_enedis: " + adapter.config.token_enedis);
-
+    const token =  adapter.config.token_enedis;
+    console.log(token);
+    const session = new Session(token);
+    session.getDailyConsumption('2024-10-05', '2024-10-08').then((result) =>  { 
+        try {
+            console.log(result); } 
+        catch {
+            console.log('erreur');  }
+        }         
+ ); 
+ 
+    
     /*
         For every state in the system there has to be also an object of type state
         Here a simple template for a boolean variable named "testVariable"
@@ -141,10 +156,5 @@ async function main() {
     });
 }
 
-if (require.main !== module) {
-    // Export startAdapter in compact mode
-    module.exports = startAdapter;
-} else {
-    // otherwise start the instance directly
+
     startAdapter();
-}
