@@ -99,15 +99,37 @@ async function main() {
     const token =  adapter.config.token_enedis;
     console.log(token);
     const session = new Session(token);
-    session.getDailyConsumption('2024-10-05', '2024-10-08').then((result) =>  { 
+    session.getDailyConsumption('2024-10-07', '2024-10-09').then((result) =>  { 
         try {
-            console.log(result); } 
+            console.log(result);
+            var w0=result.interval_reading[0].value;var d0=result.interval_reading[0].date; 
+            var w1=result.interval_reading[1].value;var d1=result.interval_reading[1].date;
+            var w2=result.interval_reading[2].value;var d2=result.interval_reading[2].date;
+            console.log(w0,d0,w1,d1,w2,d2) ;  
+            
+        } 
         catch {
             console.log('erreur');  }
         }         
  ); 
- 
-    
+ // Récupère la puissance moyenne consommée le 1er mai 2023, sur un intervalle de 30 min
+session.getLoadCurve('2024-10-07','2024-10-09').then((result) => {
+    try {
+    console.log(result);
+} 
+catch {
+    console.log('erreur');  } 
+}
+);
+// Récupère la puissance maximale de consommation atteinte quotidiennement du 1er au 3 mai 2023
+session.getMaxPower('2024-10-07','2024-10-09').then((result) => {
+    try {
+    console.log(result);
+} 
+catch { 
+    console.log('erreur');    }
+}   
+);    
     /*
         For every state in the system there has to be also an object of type state
         Here a simple template for a boolean variable named "testVariable"
@@ -124,7 +146,17 @@ async function main() {
         },
         native: {},
     });
-
+    await adapter.setObjectNotExistsAsync("wh_day", {
+        type: "state",
+        common: {
+            name: "wh_day",
+            type: "number",
+            role: "indicator",
+            read: true,
+            write: true,
+        },
+        native: {},
+    });
     // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
     adapter.subscribeStates("testVariable");
     // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
@@ -141,7 +173,7 @@ async function main() {
 
     // same thing, but the value is flagged "ack"
     // ack should be always set to true if the value is received from or acknowledged from the target system
-    await adapter.setStateAsync("testVariable", { val: true, ack: true });
+    await adapter.setStateAsync("wh_day", { val: true, ack: true });
 
     // same thing, but the state is deleted after 30s (getState will return null afterwards)
     await adapter.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
