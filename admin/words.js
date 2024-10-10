@@ -27,5 +27,17 @@ systemDictionary = {
         "es": "TOKEN",
         "pl": "TOKEN",
         "zh-cn": "TOKEN"
+    },
+    "wh_day": {
+        "en": "Wh_Day",
+        "de": "Wh_Tag",
+        "ru": "Wh_День",
+        "pt": "Wh_Dia",
+        "nl": "Wh_Dag",
+        "fr": "Wh_Jour",
+        "it": "Wh_Giorno",
+        "es": "Wh_dia",
+        "pl": "Wh_Dzień",
+        "zh-cn": "Wh_天"
     }
 };
