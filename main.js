@@ -18,7 +18,8 @@ import { Session } from "linky";
  * The adapter instance
  * @type {ioBroker.Adapter}
  */
-let adapter;
+let adapter;let wh_d;
+
 
 /**
  * Starts the adapter instance
@@ -92,28 +93,35 @@ function startAdapter(options) {
 }
 
 async function main() {
-
+    
     // The adapters config (in the instance object everything under the attribute "native") is accessible via
     // adapter.config:
     adapter.log.info("config token_enedis: " + adapter.config.token_enedis);
     const token =  adapter.config.token_enedis;
     console.log(token);
     const session = new Session(token);
-    session.getDailyConsumption('2024-10-07', '2024-10-09').then((result) =>  { 
+    await session.getDailyConsumption('2024-10-09', '2024-10-11').then((result) =>  { 
         try {
             console.log(result);
             var w0=result.interval_reading[0].value;var d0=result.interval_reading[0].date; 
             var w1=result.interval_reading[1].value;var d1=result.interval_reading[1].date;
-            var w2=result.interval_reading[2].value;var d2=result.interval_reading[2].date;
-            console.log(w0,d0,w1,d1,w2,d2) ;  
             
-        } 
+            console.log(w0,d0,w1,d1) ; 
+            wh_d = result.interval_reading[1].value;
+            if (w1) {
+                adapter.setState('adapter.linky.0.wh_d}', {
+                    val: result.interval_reading[1].value,
+                    ack: true,
+                });
+       } }
         catch {
-            console.log('erreur');  }
-        }         
+            console.log('erreur');  }           
+      
+    
+     } 
  ); 
  // Récupère la puissance moyenne consommée le 1er mai 2023, sur un intervalle de 30 min
-session.getLoadCurve('2024-10-07','2024-10-09').then((result) => {
+ await session.getLoadCurve('2024-10-09','2024-10-11').then((result) => {
     try {
     console.log(result);
 } 
@@ -122,7 +130,7 @@ catch {
 }
 );
 // Récupère la puissance maximale de consommation atteinte quotidiennement du 1er au 3 mai 2023
-session.getMaxPower('2024-10-07','2024-10-09').then((result) => {
+await session.getMaxPower('2024-10-09','2024-10-11').then((result) => {
     try {
     console.log(result);
 } 
@@ -146,7 +154,7 @@ catch {
         },
         native: {},
     });
-    await adapter.setObjectNotExistsAsync("wh_day", {
+    await adapter.setObjectNotExistsAsync("wh_d", {
         type: "state",
         common: {
             name: "wh_day",
@@ -157,8 +165,9 @@ catch {
         },
         native: {},
     });
+
     // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-    adapter.subscribeStates("testVariable");
+    adapter.subscribeStates("testVariable");adapter.subscribeStates("wh_day");
     // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
     // adapter.subscribeStates("lights.*");
     // Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
@@ -173,7 +182,7 @@ catch {
 
     // same thing, but the value is flagged "ack"
     // ack should be always set to true if the value is received from or acknowledged from the target system
-    await adapter.setStateAsync("wh_day", { val: true, ack: true });
+    await adapter.setStateAsync("wh_d", { val: "value", ack: true });
 
     // same thing, but the state is deleted after 30s (getState will return null afterwards)
     await adapter.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
@@ -186,7 +195,8 @@ catch {
     adapter.checkGroup("admin", "admin", (res) => {
         adapter.log.info("check group user admin group admin: " + res);
     });
-}
+    
 
+}
 
     startAdapter();
