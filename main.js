@@ -126,6 +126,17 @@ async function main() {
 		},
 		native: {}
 	});
+    adapter.setObjectNotExistsAsync("pmoy_d", {
+		type: 'state',
+		common: {
+			name: 'power_Day',
+			type: 'mixed',
+			read: true,
+			write: true,
+			role: 'state',
+		},
+		native: {}
+	});
     await session.getDailyConsumption('2024-10-10', '2024-10-12').then((result) =>  { 
         try {
             console.log(result);
@@ -146,20 +157,28 @@ async function main() {
     
      } 
  ); 
- /* Récupère la puissance moyenne consommée le 1er mai 2023, sur un intervalle de 30 min
- await session.getLoadCurve('2024-10-09','2024-10-11').then((result) => {
+ /* Récupère la puissance moyenne consommée le 1er mai 2023, sur un intervalle de 30 min*/
+ await session.getLoadCurve('2024-10-11','2024-10-12').then((result) => {
     try {
     console.log(result);
+    let n=0;
+    var valeur = [];var heure = [];
+    while  (typeof result.interval_reading[n] !== 'undefined') {
+        valeur[n] = result.interval_reading[n].value ;
+        heure[n] = result.interval_reading[n].date ;
+        n++;
+        }
+        //var v= JSON.stringify(valeur);    
 } 
 catch {
     console.log('erreur');  } 
 }
-);*/
+);
 // Récupère la puissance maximale de consommation atteinte quotidiennement du 1er au 3 mai 2023
 await session.getMaxPower('2024-10-09','2024-10-11').then((result) => {
     try {
     console.log(result);
-            var p0=Number(result.interval_reading[0].value);var d0=result.interval_reading[0].date; 
+            var p0={conso: cleanInt(result.interval_reading[0].value), date: result.interval_reading[0].date};
             var p1={conso: cleanInt(result.interval_reading[1].value), date: result.interval_reading[1].date};
             const p = JSON.stringify(p1);
             console.log(p0) ; 
