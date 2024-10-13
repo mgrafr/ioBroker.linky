@@ -18,14 +18,17 @@ import { Session } from "linky";
  * The adapter instance
  * @type {ioBroker.Adapter}
  */
-let adapter;let wh_d;
+let adapter;
 
 
-/**
+/*
  * Starts the adapter instance
  * @param {Partial<utils.AdapterOptions>} [options]
  */
-
+function cleanInt(x) {
+    x = Number(x);
+    return x >= 0 ? Math.floor(x) : Math.ceil(x);
+}
 function startAdapter(options) {
     // Create the adapter and define its methods
     return adapter = utils.adapter(Object.assign({}, options, {
@@ -100,17 +103,29 @@ async function main() {
     const token =  adapter.config.token_enedis;
     console.log(token);
     const session = new Session(token);
-    await session.getDailyConsumption('2024-10-09', '2024-10-11').then((result) =>  { 
+
+    adapter.setObjectNotExistsAsync("wh_d", {
+		type: 'state',
+		common: {
+			name: 'Wh_Day',
+			type: 'mixed',
+			read: true,
+			write: true,
+			role: 'state',
+		},
+		native: {}
+	});
+    await session.getDailyConsumption('2024-10-10', '2024-10-12').then((result) =>  { 
         try {
             console.log(result);
-            var w0=result.interval_reading[0].value;var d0=result.interval_reading[0].date; 
-            var w1=result.interval_reading[1].value;var d1=result.interval_reading[1].date;
+            var w0=Number(result.interval_reading[0].value);var d0=result.interval_reading[0].date; 
+            var w1={conso: cleanInt(result.interval_reading[1].value), date: result.interval_reading[1].date};
+            const w = JSON.stringify(w1);
+            console.log(w0,d0) ; 
             
-            console.log(w0,d0,w1,d1) ; 
-            wh_d = result.interval_reading[1].value;
-            if (w1) {
-                adapter.setState('adapter.linky.0.wh_d}', {
-                    val: result.interval_reading[1].value,
+            if (w) {
+                adapter.setState('wh_d', {
+                    val: w,
                     ack: true,
                 });
        } }
@@ -120,7 +135,7 @@ async function main() {
     
      } 
  ); 
- // Récupère la puissance moyenne consommée le 1er mai 2023, sur un intervalle de 30 min
+ /* Récupère la puissance moyenne consommée le 1er mai 2023, sur un intervalle de 30 min
  await session.getLoadCurve('2024-10-09','2024-10-11').then((result) => {
     try {
     console.log(result);
@@ -142,7 +157,7 @@ catch {
         For every state in the system there has to be also an object of type state
         Here a simple template for a boolean variable named "testVariable"
         Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-    */
+    *//*
     await adapter.setObjectNotExistsAsync("testVariable", {
         type: "state",
         common: {
@@ -153,21 +168,11 @@ catch {
             write: true,
         },
         native: {},
-    });
-    await adapter.setObjectNotExistsAsync("wh_d", {
-        type: "state",
-        common: {
-            name: "wh_day",
-            type: "number",
-            role: "indicator",
-            read: true,
-            write: true,
-        },
-        native: {},
-    });
+    });*/
+   
 
     // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-    adapter.subscribeStates("testVariable");adapter.subscribeStates("wh_day");
+    adapter.subscribeStates("wh_day");
     // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
     // adapter.subscribeStates("lights.*");
     // Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
@@ -177,15 +182,8 @@ catch {
         setState examples
         you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
     */
-    // the variable testVariable is set to true as command (ack=false)
-    await adapter.setStateAsync("testVariable", true);
-
-    // same thing, but the value is flagged "ack"
-    // ack should be always set to true if the value is received from or acknowledged from the target system
-    await adapter.setStateAsync("wh_d", { val: "value", ack: true });
-
-    // same thing, but the state is deleted after 30s (getState will return null afterwards)
-    await adapter.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
+   
+        
 
     // examples for the checkPassword/checkGroup functions
     adapter.checkPassword("admin", "iobroker", (res) => {
