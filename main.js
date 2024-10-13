@@ -115,13 +115,24 @@ async function main() {
 		},
 		native: {}
 	});
+    adapter.setObjectNotExistsAsync("w_d", {
+		type: 'state',
+		common: {
+			name: 'Watt_Day',
+			type: 'mixed',
+			read: true,
+			write: true,
+			role: 'state',
+		},
+		native: {}
+	});
     await session.getDailyConsumption('2024-10-10', '2024-10-12').then((result) =>  { 
         try {
             console.log(result);
-            var w0=Number(result.interval_reading[0].value);var d0=result.interval_reading[0].date; 
+            var w0={conso: cleanInt(result.interval_reading[0].value), date: result.interval_reading[0].date}; 
             var w1={conso: cleanInt(result.interval_reading[1].value), date: result.interval_reading[1].date};
             const w = JSON.stringify(w1);
-            console.log(w0,d0) ; 
+            console.log(w) ; 
             
             if (w) {
                 adapter.setState('wh_d', {
@@ -143,11 +154,22 @@ async function main() {
 catch {
     console.log('erreur');  } 
 }
-);
+);*/
 // Récupère la puissance maximale de consommation atteinte quotidiennement du 1er au 3 mai 2023
 await session.getMaxPower('2024-10-09','2024-10-11').then((result) => {
     try {
     console.log(result);
+            var p0=Number(result.interval_reading[0].value);var d0=result.interval_reading[0].date; 
+            var p1={conso: cleanInt(result.interval_reading[1].value), date: result.interval_reading[1].date};
+            const p = JSON.stringify(p1);
+            console.log(p0) ; 
+            
+            if (p) {
+                adapter.setState('w_d', {
+                    val: p,
+                    ack: true,
+                });
+       }
 } 
 catch { 
     console.log('erreur');    }
