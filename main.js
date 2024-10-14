@@ -137,6 +137,7 @@ async function main() {
 		},
 		native: {}
 	});
+    adapter.sendTo('sql.0', 'query', 'CREATE TABLE IF NOT EXISTS conso_elec (Date timestamp,Wh VARCHAR(10),W VARCHAR(10),detail_w)');
     await session.getDailyConsumption('2024-10-10', '2024-10-12').then((result) =>  { 
         try {
             console.log(result);
@@ -151,10 +152,7 @@ async function main() {
                     ack: true,
                 });
        } 
-       /*sendTo('sql.0', 'storeState', [
-        id : "1000",
-        state : {ts: Date.now(), val: w, ack: false, from: 'system.adapter.linky.0.wh_d'}
-    ], result => console.log('added'));*/
+
     }
         catch {
             console.log('erreur');  }           
@@ -166,13 +164,13 @@ async function main() {
  await session.getLoadCurve('2024-10-11','2024-10-12').then((result) => {
     try {
     console.log(result);
-    let n=1;
-    //var valeur = [];var heure = [];
-    var pm='{{"value":'+result.interval_reading[n].value+',"date":'+result.interval_reading[n].date+'},';
-    while  (typeof result.interval_reading[n] !== 'undefined') {
-        //valeur[n] = result.interval_reading[n].value ;
-        //heure[n] = result.interval_reading[n].date ;
-        pm=pm+"value:"+result.interval_reading[n].value+",date:"+result.interval_reading[n].date+"}";
+    let n=1;let response=result.interval_reading;let now=Date.now();
+    var pm='{{"value":'+response[0].value+',"date":'+response[0].date+'},';
+    var valeur=response[0].value;var time=response[0].date;
+    while  (typeof response[n] !== 'undefined') {
+        //valeur[n] = response[n].value ;
+        //heure[n] = response[n].date ;
+        pm=pm+"value:"+response[n].value+",date:"+response[n].date+"}";
         n++;
         }
     pm=pm+"}";
@@ -182,7 +180,8 @@ async function main() {
                 val: pm,
                 ack: true,
             });
-   }    
+   } 
+   
 } 
 catch {
     console.log('erreur');  } 
