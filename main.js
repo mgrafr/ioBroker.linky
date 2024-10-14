@@ -150,7 +150,12 @@ async function main() {
                     val: w,
                     ack: true,
                 });
-       } }
+       } 
+       /*sendTo('sql.0', 'storeState', [
+        id : "1000",
+        state : {ts: Date.now(), val: w, ack: false, from: 'system.adapter.linky.0.wh_d'}
+    ], result => console.log('added'));*/
+    }
         catch {
             console.log('erreur');  }           
       
