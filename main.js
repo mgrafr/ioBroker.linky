@@ -161,14 +161,23 @@ async function main() {
  await session.getLoadCurve('2024-10-11','2024-10-12').then((result) => {
     try {
     console.log(result);
-    let n=0;
-    var valeur = [];var heure = [];
+    let n=1;
+    //var valeur = [];var heure = [];
+    var pm='{{"value":'+result.interval_reading[n].value+',"date":'+result.interval_reading[n].date+'},';
     while  (typeof result.interval_reading[n] !== 'undefined') {
-        valeur[n] = result.interval_reading[n].value ;
-        heure[n] = result.interval_reading[n].date ;
+        //valeur[n] = result.interval_reading[n].value ;
+        //heure[n] = result.interval_reading[n].date ;
+        pm=pm+"value:"+result.interval_reading[n].value+",date:"+result.interval_reading[n].date+"}";
         n++;
         }
-        //var v= JSON.stringify(valeur);    
+    pm=pm+"}";
+        //var v= JSON.stringify(valeur);
+        if (pm) {
+            adapter.setState('pmoy_d', {
+                val: pm,
+                ack: true,
+            });
+   }    
 } 
 catch {
     console.log('erreur');  } 
