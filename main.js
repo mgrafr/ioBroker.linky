@@ -145,28 +145,6 @@ async function main() {
 		},
 		native: {}
 	});
-    adapter.setObjectNotExistsAsync("puissance_moyenne.pmoy_d", {
-		type: 'state',
-		common: {
-			name: 'power_Day',
-			type: 'mixed',
-			read: true,
-			write: true,
-			role: 'state',
-		},
-		native: {}
-	});
-    adapter.setObjectNotExistsAsync("puissance_moyenne.heure", {
-		type: 'state',
-		common: {
-			name: 'date',
-			type: 'string',
-			read: true,
-			write: true,
-			role: 'state',
-		},
-		native: {}
-	});
     adapter.setObjectNotExistsAsync("conso_electrique.date", {
 		type: 'state',
 		common: {
@@ -178,6 +156,43 @@ async function main() {
 		},
 		native: {}
 	});
+var  i=0;
+    while  (i<48) {var j=i.toString();
+        if (i<10) {j="0"+j;}
+        adapter.setObjectNotExistsAsync("puissance_moyenne."+j , {
+            type: 'folder',
+            common: {
+                name: 'date',
+                type: 'string',
+                read: true,
+                write: true,
+                role: 'state',
+            },
+            native: {}
+        });
+        adapter.setObjectNotExistsAsync("puissance_moyenne."+j+".pmoy_d", {
+            type: 'state',
+            common: {
+                name: 'power_Day',
+                type: 'mixed',
+                read: true,
+                write: true,
+                role: 'state',
+            },
+            native: {}
+        });
+        adapter.setObjectNotExistsAsync("puissance_moyenne."+j+".heure", {
+            type: 'state',
+            common: {
+                name: 'date',
+                type: 'string',
+                read: true,
+                write: true,
+                role: 'state',
+            },
+            native: {}
+        });
+    i++;}
     adapter.sendTo('sql.0', 'query', 'CREATE TABLE IF NOT EXISTS conso_elec (Date timestamp,Wh VARCHAR(10),W VARCHAR(10),detail_w);');
         
     await session.getDailyConsumption('2024-10-14', '2024-10-15').then((result) =>  { 
@@ -206,21 +221,23 @@ async function main() {
     
      } 
  ); 
- /* Récupère la puissance moyenne consommée le 1er mai 2023, sur un intervalle de 30 min*/
+ // Récupère la puissance moyenne consommée le 1er mai 2023, sur un intervalle de 30 min*/
  await session.getLoadCurve('2024-10-14','2024-10-15').then((result) => {
     try {
     console.log(result);
     let n=0;let response=result.interval_reading;let now=Date.now();
     
     while  (typeof response[n] !== 'undefined') {
+        var j=n.toString();
+        if (i<10) {n="0"+n;}
         var valeur = response[n].value ;
         var heure = response[n].date ;
-        adapter.setState('puissance_moyenne.heure', {
+        adapter.setState('puissance_moyenne.'+j+'.heure', {
             val: heure,
             ack: true,
         });
-        adapter.setState('puissance_moyenne.pmoy_d', {
-            val: heure,
+        adapter.setState('puissance_moyenne.'+j+'.pmoy_d', {
+            val: valeur,
             ack: true,
         });
         n++;
