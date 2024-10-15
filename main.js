@@ -12,15 +12,12 @@
 import  * as utils   from '@iobroker/adapter-core';
 import { Session } from "linky";
 // Load your modules here, e.g.:
-// const fs = require("fs");
-
+//import * as fs from 'fs';
 /**
  * The adapter instance
  * @type {ioBroker.Adapter}
  */
 let adapter;
-
-
 /*
  * Starts the adapter instance
  * @param {Partial<utils.AdapterOptions>} [options]
@@ -99,12 +96,34 @@ async function main() {
     
     // The adapters config (in the instance object everything under the attribute "native") is accessible via
     // adapter.config:
+    adapter.setObjectNotExistsAsync("conso_electrique", {
+        type: 'folder',
+        common: {
+			name: 'consomation_electrique',
+			type: 'string',
+			read: true,
+			write: true,
+			role: '',
+		},
+		native: {}
+	});
+    adapter.setObjectNotExistsAsync("puissance_moyenne", {
+        type: 'folder',
+        common: {
+			name: 'courbe_puissance_moyenne',
+			type: 'string',
+			read: true,
+			write: true,
+			role: '',
+		},
+		native: {}
+	});
     adapter.log.info("config token_enedis: " + adapter.config.token_enedis);
     const token =  adapter.config.token_enedis;
     console.log(token);
     const session = new Session(token);
 
-    adapter.setObjectNotExistsAsync("wh_d", {
+    adapter.setObjectNotExistsAsync("conso_electrique.wh_d", {
 		type: 'state',
 		common: {
 			name: 'Wh_Day',
@@ -115,7 +134,7 @@ async function main() {
 		},
 		native: {}
 	});
-    adapter.setObjectNotExistsAsync("w_d", {
+    adapter.setObjectNotExistsAsync("conso_electrique.w_d", {
 		type: 'state',
 		common: {
 			name: 'Watt_Day',
@@ -126,7 +145,7 @@ async function main() {
 		},
 		native: {}
 	});
-    adapter.setObjectNotExistsAsync("pmoy_d", {
+    adapter.setObjectNotExistsAsync("puissance_moyenne.pmoy_d", {
 		type: 'state',
 		common: {
 			name: 'power_Day',
@@ -137,18 +156,45 @@ async function main() {
 		},
 		native: {}
 	});
-    adapter.sendTo('sql.0', 'query', 'CREATE TABLE IF NOT EXISTS conso_elec (Date timestamp,Wh VARCHAR(10),W VARCHAR(10),detail_w)');
-    await session.getDailyConsumption('2024-10-10', '2024-10-12').then((result) =>  { 
+    adapter.setObjectNotExistsAsync("puissance_moyenne.heure", {
+		type: 'state',
+		common: {
+			name: 'date',
+			type: 'string',
+			read: true,
+			write: true,
+			role: 'state',
+		},
+		native: {}
+	});
+    adapter.setObjectNotExistsAsync("conso_electrique.date", {
+		type: 'state',
+		common: {
+			name: 'date',
+			type: 'string',
+			read: true,
+			write: true,
+			role: 'state',
+		},
+		native: {}
+	});
+    adapter.sendTo('sql.0', 'query', 'CREATE TABLE IF NOT EXISTS conso_elec (Date timestamp,Wh VARCHAR(10),W VARCHAR(10),detail_w);');
+        
+    await session.getDailyConsumption('2024-10-14', '2024-10-15').then((result) =>  { 
         try {
             console.log(result);
-            var w0={conso: cleanInt(result.interval_reading[0].value), date: result.interval_reading[0].date}; 
-            var w1={conso: cleanInt(result.interval_reading[1].value), date: result.interval_reading[1].date};
-            const w = JSON.stringify(w1);
-            console.log(w) ; 
+            var w0= cleanInt(result.interval_reading[0].value); 
+            var d0= result.interval_reading[0].date ;
+            //const w = JSON.stringify(w1);
+            console.log(w0) ; 
             
-            if (w) {
-                adapter.setState('wh_d', {
-                    val: w,
+            if (w0) {
+                adapter.setState('conso_electrique.wh_d', {
+                    val: Number(w0),
+                    ack: true,
+                });
+                adapter.setState('conso_electrique.date', {
+                    val: d0,
                     ack: true,
                 });
        } 
@@ -161,26 +207,27 @@ async function main() {
      } 
  ); 
  /* Récupère la puissance moyenne consommée le 1er mai 2023, sur un intervalle de 30 min*/
- await session.getLoadCurve('2024-10-11','2024-10-12').then((result) => {
+ await session.getLoadCurve('2024-10-14','2024-10-15').then((result) => {
     try {
     console.log(result);
-    let n=1;let response=result.interval_reading;let now=Date.now();
-    var pm='{{"value":'+response[0].value+',"date":'+response[0].date+'},';
-    var valeur=response[0].value;var time=response[0].date;
+    let n=0;let response=result.interval_reading;let now=Date.now();
+    
     while  (typeof response[n] !== 'undefined') {
-        //valeur[n] = response[n].value ;
-        //heure[n] = response[n].date ;
-        pm=pm+"value:"+response[n].value+",date:"+response[n].date+"}";
+        var valeur = response[n].value ;
+        var heure = response[n].date ;
+        adapter.setState('puissance_moyenne.heure', {
+            val: heure,
+            ack: true,
+        });
+        adapter.setState('puissance_moyenne.pmoy_d', {
+            val: heure,
+            ack: true,
+        });
         n++;
         }
-    pm=pm+"}";
+    
         //var v= JSON.stringify(valeur);
-        if (pm) {
-            adapter.setState('pmoy_d', {
-                val: pm,
-                ack: true,
-            });
-   } 
+        
    
 } 
 catch {
@@ -188,17 +235,16 @@ catch {
 }
 );
 // Récupère la puissance maximale de consommation atteinte quotidiennement du 1er au 3 mai 2023
-await session.getMaxPower('2024-10-09','2024-10-11').then((result) => {
+await session.getMaxPower('2024-10-14','2024-10-15').then((result) => {
     try {
     console.log(result);
-            var p0={conso: cleanInt(result.interval_reading[0].value), date: result.interval_reading[0].date};
-            var p1={conso: cleanInt(result.interval_reading[1].value), date: result.interval_reading[1].date};
-            const p = JSON.stringify(p1);
+            var p0= cleanInt(result.interval_reading[0].value);
+            //const p = JSON.stringify(p1);
             console.log(p0) ; 
             
-            if (p) {
-                adapter.setState('w_d', {
-                    val: p,
+            if (p0) {
+                adapter.setState('conso_electrique.w_d', {
+                    val: Number(p0),
                     ack: true,
                 });
        }
