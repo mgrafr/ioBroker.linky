@@ -11,7 +11,12 @@
 //import('linky.Session');
 import  * as utils   from '@iobroker/adapter-core';
 import { Session } from "linky";
+import moment from 'moment';
+const formattedDate = moment().format('YYYY-MM-DD');
+var JourDeLaVeille = moment().subtract(1, 'day').format('YYYY-MM-DD');
+console.log(formattedDate,"  ",JourDeLaVeille);
 // Load your modules here, e.g.:
+
 //import * as fs from 'fs';
 /**
  * The adapter instance
@@ -26,6 +31,7 @@ function cleanInt(x) {
     x = Number(x);
     return x >= 0 ? Math.floor(x) : Math.ceil(x);
 }
+
 function startAdapter(options) {
     // Create the adapter and define its methods
     return adapter = utils.adapter(Object.assign({}, options, {
@@ -156,9 +162,15 @@ async function main() {
 		},
 		native: {}
 	});
-var  i=0;
-    while  (i<48) {var j=i.toString();
-        if (i<10) {j="0"+j;}
+var  i=0; var hours=0;var minutes=0;
+    while  (i<48) {
+       minutes=minutes+30;
+        if (minutes>=60) {minutes=0;hours=hours+1;}
+        if (minutes==0) {var minutes_folder="00"}
+        else {var minutes_folder="30";}
+        if (hours<10) {var heure_folder="0"+hours.toString();}
+        else heure_folder=hours.toString();
+        var j=heure_folder+":"+minutes_folder;
         adapter.setObjectNotExistsAsync("puissance_moyenne."+j , {
             type: 'folder',
             common: {
@@ -194,8 +206,8 @@ var  i=0;
         });
     i++;}
     adapter.sendTo('sql.0', 'query', 'CREATE TABLE IF NOT EXISTS conso_elec (Date timestamp,Wh VARCHAR(10),W VARCHAR(10),detail_w);');
-        
-    await session.getDailyConsumption('2024-10-14', '2024-10-15').then((result) =>  { 
+ // Récupère les Waat/heure consommés le AAAA-MM-JJ */       
+    await session.getDailyConsumption(JourDeLaVeille, formattedDate).then((result) =>  { 
         try {
             console.log(result);
             var w0= cleanInt(result.interval_reading[0].value); 
@@ -221,15 +233,19 @@ var  i=0;
     
      } 
  ); 
- // Récupère la puissance moyenne consommée le 1er mai 2023, sur un intervalle de 30 min*/
- await session.getLoadCurve('2024-10-14','2024-10-15').then((result) => {
+ // Récupère la puissance moyenne consommée le AAAA-MM-JJ, sur un intervalle de 30 min*/
+ await session.getLoadCurve(JourDeLaVeille,formattedDate).then((result) => {
     try {
-    console.log(result);
-    let n=0;let response=result.interval_reading;let now=Date.now();
+        
+        let n=0;let response=result.interval_reading;var hours=0;var minutes=0;
     
     while  (typeof response[n] !== 'undefined') {
-        var j=n.toString();
-        if (i<10) {n="0"+n;}
+                minutes=minutes+30;if (minutes>=60) {minutes=0;hours=hours+1;}
+        if (minutes==0) {var minutes_folder="00"}
+        else {var minutes_folder="30";}
+        if (hours<10) {var heure_folder="0"+hours.toString();}
+        else heure_folder=hours.toString();
+        var j=heure_folder+":"+minutes_folder;
         var valeur = response[n].value ;
         var heure = response[n].date ;
         adapter.setState('puissance_moyenne.'+j+'.heure', {
@@ -242,17 +258,14 @@ var  i=0;
         });
         n++;
         }
-    
         //var v= JSON.stringify(valeur);
-        
-   
-} 
+ } 
 catch {
     console.log('erreur');  } 
 }
 );
-// Récupère la puissance maximale de consommation atteinte quotidiennement du 1er au 3 mai 2023
-await session.getMaxPower('2024-10-14','2024-10-15').then((result) => {
+// Récupère la puissance maximale de consommation atteinte quotidiennement du  exemple 2024-10-15
+await session.getMaxPower(JourDeLaVeille,formattedDate).then((result) => {
     try {
     console.log(result);
             var p0= cleanInt(result.interval_reading[0].value);
@@ -270,26 +283,8 @@ catch {
     console.log('erreur');    }
 }   
 );    
-    /*
-        For every state in the system there has to be also an object of type state
-        Here a simple template for a boolean variable named "testVariable"
-        Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-    *//*
-    await adapter.setObjectNotExistsAsync("testVariable", {
-        type: "state",
-        common: {
-            name: "testVariable",
-            type: "boolean",
-            role: "indicator",
-            read: true,
-            write: true,
-        },
-        native: {},
-    });*/
-   
-
-    // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-    adapter.subscribeStates("wh_day");
+// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
+    //adapter.subscribeStates("wh_day");
     // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
     // adapter.subscribeStates("lights.*");
     // Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
