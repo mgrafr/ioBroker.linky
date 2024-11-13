@@ -12,12 +12,15 @@
     <script type="text/javascript" src="../../js/translate.js"></script>
     <script type="text/javascript" src="../../lib/js/materialize.js"></script>
     <script type="text/javascript" src="../../js/adapter-settings.js"></script>
+    <script type="text/javascript" src="timePicker.js"></script>
 
     <!-- Load our own files -->
     <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="timePicker.css" />
     <script type="text/javascript" src="words.js"></script>
 
     <script type="text/javascript">
+    
         // This will be called by the admin adapter when the settings page loads
         function load(settings, onChange) {
             // example: select elements with id=key and class=value and insert value
@@ -59,6 +62,18 @@
             });
             callback(obj);
         }
+        // calendrier pour l'heure de connexion
+       
+        const valueSpan = document.getElementById("value");
+        const timeControl = document.querySelector('input[type="time"]');
+        hour_enedis = document.getElementById("hour_enedis"); 
+console.log(timeControl.value);
+
+startTime.addEventListener("input",(valueSpan) => {
+    hour_enedis.innerText = startTime.value;},
+  false,
+);
+          
     </script>
 
 </head>
@@ -78,15 +93,23 @@
         </div>
 
         <!-- Put your content here -->
-
         <!-- For example columns with settings: -->
         <div class="row">
             <div class="col s6 input-field">
                 <input type="text" class="value" id="token_enedis" />
                 <label for="token_enedis" class="translate">TOKEN</label>
             </div>
+            <div class="calendar input-field">
+                <form>
+                    
+                        <label for="hour_enedis" class="translate">Download time: </label>
+                        <input type="time" id="hour_enedis" class="value"/>
+                                           
+                   
+            </div>
         </div>
-
+      
+        
     </div>
 
 </body>
