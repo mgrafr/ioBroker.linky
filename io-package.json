@@ -18,28 +18,28 @@
         },
         "title": "consommation électrique du compteur Linky",
         "titleLang": {
-            "en": "consommation électrique du compteur Linky",
-            "de": "consommation électrique du compteur Linky",
-            "ru": "consommation électrique du compteur Linky",
-            "pt": "consommation électrique du compteur Linky",
-            "nl": "consommation électrique du compteur Linky",
+            "en": "Electricity consumption of the Linky meter",
+            "de": "Stromverbrauch des Linky-Zählers",
+            "ru": "потребление электроэнергии счетчиком Linky",
+            "pt": "consumo de eletricidade do contador Linky",
+            "nl": "elektriciteitsverbruik van de Linky-meter",
             "fr": "consommation électrique du compteur Linky",
-            "it": "consommation électrique du compteur Linky",
-            "es": "consommation électrique du compteur Linky",
-            "pl": "consommation électrique du compteur Linky",
-            "zh-cn": "consommation électrique du compteur Linky"
+            "it": "consumo elettrico del contatore Linky",
+            "es": "consumo de electricidad del medidor Linky",
+            "pl": "zużycie energii elektrycznej przez licznik Linky",
+            "zh-cn": "Linky 电表的用电量"
         },
         "desc": {
-            "en": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
-            "de": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
-            "ru": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
-            "pt": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
-            "nl": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
+            "en": "Recording electricity consumption from the Enedis website",
+            "de": "Erfassung des Stromverbrauchs von der Enedis-Website",
+            "ru": "Учет потребления электроэнергии сайта Enedis",
+            "pt": "Registo do consumo de energia elétrica no site da Enedis",
+            "nl": "Registratie van elektriciteitsverbruik via de website van Enedis",
             "fr": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
-            "it": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
-            "es": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
-            "pl": "Enregistrement de la consommation électrique depuis le site Web d'Enedis",
-            "zh-cn": "Enregistrement de la consommation électrique depuis le site Web d'Enedis"
+            "it": "Registrazione del consumo di energia elettrica dal sito Enedis",
+            "es": "Registro del consumo eléctrico desde el sitio web de Enedis.",
+            "pl": "Rejestracja zużycia energii elektrycznej ze strony internetowej Enedis",
+            "zh-cn": "来自 Enedis 网站的用电量记录"
         },
         "authors": [
             "domo-site <michel.gravier@orange.fr>"
@@ -81,7 +81,8 @@
         ]
     },
     "native": {
-        "token_enedis": "token"
+        "token_enedis": "token",
+        "hour_enedis": "00:00"
     },
     "objects": [],
     "instanceObjects": []

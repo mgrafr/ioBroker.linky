@@ -97,11 +97,59 @@ function startAdapter(options) {
         // },
     }));
 }
-
+function dayDiff(d1, d2) {
+    // Convertir les dates en millisecondes
+    const date1_ms = d1.getTime();
+    const date2_ms = d2.getTime();
+    // Calculer la différence en millisecondes
+    const diff_ms = date2_ms - date1_ms;
+    // Convertir les millisecondes en secondes
+    const diff_days = diff_ms / (1000);
+    return Math.floor(diff_days); // Arrondir à l'entier inférieur
+}
+function convertDecimalsecondsTohoursMinutesSeconds(decimalHours) {
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.floor((decimalHours - hours)*60);
+    return `${hours} heures ${minutes} minutes `;
+}
 async function main() {
     
     // The adapters config (in the instance object everything under the attribute "native") is accessible via
     // adapter.config:
+
+    const hour =  adapter.config.hour_enedis;
+    // Heure cible
+    let hm = hour.split(":");
+    const targetHour = Number(hm[0]);
+    const targetMinute =  Number(hm[1]);
+    // Calcul du délai en millisecondes
+    const now = new Date();
+    const targetTime = new Date();
+    targetTime.setHours(targetHour, targetMinute, 0, 0);
+    var delay=dayDiff(targetTime,now);console.log("delay:"+delay);
+    adapter.setObjectNotExistsAsync("next_dowload", {
+		type: 'state',
+		common: {
+			name: 'next_dowload',
+			type: 'mixed',
+			read: true,
+			write: true,
+			role: 'state',
+		},
+        native: {}
+	});
+    adapter.setState("next_dowload", {
+        val: convertDecimalsecondsTohoursMinutesSeconds(delay/3600),
+        ack: true,
+    });
+    if (delay < 0) {
+    // Si l'heure cible est déjà passée aujourd'hui, on programme pour demain
+    //delay += 24 * 60 * 60 * 1000;
+    //}
+    // Démarrer le script après le délai calculé
+    //
+    
+
     adapter.setObjectNotExistsAsync("conso_electrique", {
         type: 'folder',
         common: {
@@ -126,9 +174,8 @@ async function main() {
 	});
     adapter.log.info("config token_enedis: " + adapter.config.token_enedis);
     const token =  adapter.config.token_enedis;
-    console.log(token);
+    console.log("cle:"+token);console.log("heure:"+hour);
     const session = new Session(token);
-
     adapter.setObjectNotExistsAsync("conso_electrique.wh_d", {
 		type: 'state',
 		common: {
@@ -236,7 +283,7 @@ var  i=0; var hours=0;var minutes=0;
  // Récupère la puissance moyenne consommée le AAAA-MM-JJ, sur un intervalle de 30 min*/
  await session.getLoadCurve(JourDeLaVeille,formattedDate).then((result) => {
     try {
-        
+        console.log(result);
         let n=0;let response=result.interval_reading;var hours=0;var minutes=0;
     
     while  (typeof response[n] !== 'undefined') {
@@ -282,7 +329,7 @@ await session.getMaxPower(JourDeLaVeille,formattedDate).then((result) => {
 catch { 
     console.log('erreur');    }
 }   
-);    
+);  }  
 // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
     //adapter.subscribeStates("wh_day");
     // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
@@ -305,7 +352,7 @@ catch {
     adapter.checkGroup("admin", "admin", (res) => {
         adapter.log.info("check group user admin group admin: " + res);
     });
-    
+    setTimeout(main, 60000);    
 
 }
 
