@@ -139,7 +139,7 @@ async function main() {
         native: {}
 	});
     adapter.setState("next_dowload", {
-        val: convertDecimalsecondsTohoursMinutesSeconds(delay/3600),
+        val: convertDecimalsecondsTohoursMinutesSeconds(24-(delay/3600)),
         ack: true,
     });
     if (delay < 0) {
