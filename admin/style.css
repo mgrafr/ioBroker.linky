@@ -29,6 +29,6 @@ label > i[title] {
     white-space: nowrap;
 }
 .calendar {top: 100px;
-    left: -53rem;
-    float: left;}
-/* Add your styles here */
+    left: .75rem;width: 200px;
+    }
+#hour_enedis {margin-top: -100px;}/* Add your styles here */
